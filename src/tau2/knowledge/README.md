@@ -55,7 +55,7 @@ The `qwen_embeddings*` configs route through [OpenRouter](https://openrouter.ai/
 
 ### sandbox-runtime
 
-The `terminal_use`, `terminal_use_write`, and `AllTools` configs require [Anthropic's sandbox-runtime](https://github.com/anthropic-experimental/sandbox-runtime) for secure filesystem isolation:
+The `terminal_use`, `terminal_use_write`, and `AllTools` configs require [Anthropic's sandbox-runtime](https://github.com/anthropic-experimental/sandbox-runtime) for secure filesystem isolation. **All of the following are required** — installing just the npm package is not sufficient.
 
 ```bash
 npm install -g @anthropic-ai/sandbox-runtime@0.0.23
@@ -71,3 +71,16 @@ brew install ripgrep
 # Ubuntu/Debian
 sudo apt-get install ripgrep bubblewrap socat
 ```
+
+#### Verifying setup
+
+To confirm the sandbox dependencies are installed:
+
+```bash
+which srt rg bwrap socat   # Linux
+which srt rg               # macOS
+```
+
+All listed binaries must be present on `PATH`. As of **tau2 1.0.x**, `SandboxManager` will raise `SandboxRuntimeError` at construction time if any are missing, so a misconfigured machine fails loudly at the start of a run rather than silently passing "Sandbox dependencies are not available on this system" back to the agent for every shell tool call (which the agent will dutifully treat as a normal tool result and learn to give up on).
+
+If you do not need the shell tool, use a retrieval config that doesn't require it (e.g., `--retrieval-config bm25`, `openai_embeddings`, or `qwen_embeddings`).
